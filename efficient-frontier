@@ -1,0 +1,54 @@
+import pandas_datareader.data as web
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+tickers = ['NFLX', 'AAPL', 'FB', 'GOOG']
+df= web.DataReader(tickers,'yahoo','2015-01-01','2019-09-29')['Adj Close']
+
+dailyReturns = df.pct_change()
+annualReturns = dailyReturns.mean() * 250
+
+dailyCov = dailyReturns.cov()
+annualCov = dailyCov * 250
+
+portfolioReturns = []
+portfolioRisk = []
+stockWeights = []
+
+n = 1000000 #number of portoflios
+
+for portf in range(n):
+    
+#Creating the weights for the portfolio
+#-------------------------------------------------------------------------------------------------------------
+    weights = np.random.random(len(tickers))
+    weights /= np.sum(weights)
+    
+#Calcualting potfolio return and volatility
+#-------------------------------------------------------------------------------------------------------------
+    returns = np.dot(weights, annualReturns)
+    risk = np.sqrt(np.dot(weights.T, np.dot(annualCov, weights)))
+#Saving Results in lists
+#----------------------------------------------------------------------------------------------------------
+    portfolioReturns.append(returns)
+    portfolioRisk.append(risk)
+    stockWeights.append(weights)
+    
+portfolio = {'Returns': portfolioReturns,'Risk': portfolioRisk}
+for idx,tic in enumerate(tickers):
+    portfolio[tic+'_Weight'] = [Weight[idx] for Weight in stockWeights]
+    
+df=pd.DataFrame(portfolio)
+
+#Plotting
+#-----------------------------------------------------------------------------------------------------------------------
+fig = plt.figure(figsize = (18,8))
+ax = plt.subplot2grid((4,4),(0,0), rowspan =4, colspan = 4, facecolor='k')
+ax.scatter(df['Risk'],df['Returns'],color ='y', label ='')
+ax.scatter(X,Y, color = 'azure', s =30, label = 'Efficient Frontier')
+ax.grid(True, color = 'w', linestyle = ':')
+plt.xlabel('Risk (Standard Deviation)',fontsize =15)
+plt.ylabel('Expected Returns',fontsize =15)
+plt.legend()
+plt.title('Markowitz Efficient Frontier',fontsize =25)
