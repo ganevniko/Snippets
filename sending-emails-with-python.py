@@ -12,7 +12,7 @@ server.login(user, password)
 msg = MIMEText("Testing the app")
 
 me = "sender@domain.com"
-you = "receiver@domain.com
+you = "receiver@domain.com"
 
 msg['Subject'] = 'Testing the app'
 msg['From'] = me
